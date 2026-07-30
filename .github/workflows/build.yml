@@ -65,19 +65,37 @@ jobs:
           $outDir = "build\android_dex_portable"
           New-Item -ItemType Directory -Path $outDir -Force | Out-Null
           Copy-Item "$buildDir\*" -Destination $outDir -Recurse -Force
-          Copy-Item "assets\adb\*" -Destination $outDir -Force
-          Copy-Item "assets\scrcpy\*" -Destination $outDir -Force
+          Copy-Item "assets\adb\*" -Destination "$outDir\assets\adb" -Force
+          Copy-Item "assets\scrcpy\*" -Destination "$outDir\assets\scrcpy" -Force
           Compress-Archive -Path "$outDir\*" -DestinationPath "build\android_dex_win.zip" -Force
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress --confirm
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = "${{ github.event.release.tag_name }}".TrimStart("v")
+          if (-not $version) { $version = "0.9.0" }
+          $stageDir = (Resolve-Path "build\android_dex_portable").Path
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "installer\installer.iss" /DMyAppVersion="$version" /DStageDir="$stageDir"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-dex-windows
-          path: build\android_dex_win.zip
+          path: |
+            build\android_dex_win.zip
+            build\android_dex_setup_v*.exe
 
       - name: Upload to Release
         if: github.event_name == 'release'
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} build\android_dex_win.zip --clobber
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} build\android_dex_win.zip --clobber
+          Get-ChildItem build\android_dex_setup_v*.exe | % {
+            gh release upload ${{ github.event.release.tag_name }} $_.FullName --clobber
+          }
