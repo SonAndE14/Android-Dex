@@ -42,12 +42,17 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path "assets\scrcpy" -Force | Out-Null
-          $url = "https://github.com/Genymobile/scrcpy/releases/latest/download/scrcpy-win64-v2.7.zip"
+          $api = "https://api.github.com/repos/Genymobile/scrcpy/releases/latest"
+          $tag = (Invoke-RestMethod -Uri $api).tag_name
+          $ver = $tag -replace "^v", ""
+          $zipName = "scrcpy-win64-$ver.zip"
+          $zipUrl = "https://github.com/Genymobile/scrcpy/releases/download/$tag/$zipName"
           $zip = "$env:TEMP\scrcpy.zip"
-          Invoke-WebRequest -Uri $url -OutFile $zip
+          Invoke-WebRequest -Uri $zipUrl -OutFile $zip
           Expand-Archive -Path $zip -DestinationPath "$env:TEMP\scrcpy" -Force
-          Copy-Item "$env:TEMP\scrcpy\scrcpy-win64-v2.7\scrcpy.exe" -Destination "assets\scrcpy\scrcpy.exe"
-          Copy-Item "$env:TEMP\scrcpy\scrcpy-win64-v2.7\scrcpy-server" -Destination "assets\scrcpy\scrcpy-server"
+          $folder = "scrcpy-win64-$ver"
+          Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy.exe" -Destination "assets\scrcpy\scrcpy.exe"
+          Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy-server" -Destination "assets\scrcpy\scrcpy-server"
 
       - name: Build Windows
         run: flutter build windows --release
