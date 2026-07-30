@@ -44,13 +44,12 @@ jobs:
           New-Item -ItemType Directory -Path "assets\scrcpy" -Force | Out-Null
           $api = "https://api.github.com/repos/Genymobile/scrcpy/releases/latest"
           $tag = (Invoke-RestMethod -Uri $api).tag_name
-          $ver = $tag -replace "^v", ""
-          $zipName = "scrcpy-win64-$ver.zip"
+          $zipName = "scrcpy-win64-$tag.zip"
           $zipUrl = "https://github.com/Genymobile/scrcpy/releases/download/$tag/$zipName"
           $zip = "$env:TEMP\scrcpy.zip"
           Invoke-WebRequest -Uri $zipUrl -OutFile $zip
           Expand-Archive -Path $zip -DestinationPath "$env:TEMP\scrcpy" -Force
-          $folder = "scrcpy-win64-$ver"
+          $folder = "scrcpy-win64-$tag"
           Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy.exe" -Destination "assets\scrcpy\scrcpy.exe"
           Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy-server" -Destination "assets\scrcpy\scrcpy-server"
 
