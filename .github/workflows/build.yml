@@ -19,7 +19,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.x'
+          flutter-version: '3.27.x'
           channel: 'stable'
           cache: true
 
@@ -52,12 +52,7 @@ jobs:
           Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy.exe" -Destination "assets\scrcpy\scrcpy.exe"
           Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy-server" -Destination "assets\scrcpy\scrcpy-server"
 
-      - name: Setup MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-
       - name: Build Windows
-        env:
-          CMAKE_GENERATOR: "Visual Studio 17 2022"
         run: flutter build windows --release
 
       - name: Prepare artifacts
