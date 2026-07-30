@@ -65,9 +65,9 @@ jobs:
           $outDir = "build\android_dex_portable"
           New-Item -ItemType Directory -Path "$outDir\assets\adb" -Force | Out-Null
           New-Item -ItemType Directory -Path "$outDir\assets\scrcpy" -Force | Out-Null
-          Copy-Item "$buildDir\*" -Destination $outDir -Recurse -Force
-          Copy-Item "assets\adb\*" -Destination "$outDir\assets\adb" -Force
-          Copy-Item "assets\scrcpy\*" -Destination "$outDir\assets\scrcpy" -Force
+          robocopy "$buildDir" "$outDir" /E /NJH /NJS /NDL /NP /R:2 /W:2
+          robocopy "assets\adb" "$outDir\assets\adb" /E /NJH /NJS /NDL /NP /R:2 /W:2
+          robocopy "assets\scrcpy" "$outDir\assets\scrcpy" /E /NJH /NJS /NDL /NP /R:2 /W:2
           Compress-Archive -Path "$outDir\*" -DestinationPath "build\android_dex_win.zip" -Force
 
       - name: Install Inno Setup
