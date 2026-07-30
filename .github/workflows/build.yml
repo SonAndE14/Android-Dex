@@ -63,7 +63,8 @@ jobs:
         run: |
           $buildDir = "build\windows\x64\runner\Release"
           $outDir = "build\android_dex_portable"
-          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+          New-Item -ItemType Directory -Path "$outDir\assets\adb" -Force | Out-Null
+          New-Item -ItemType Directory -Path "$outDir\assets\scrcpy" -Force | Out-Null
           Copy-Item "$buildDir\*" -Destination $outDir -Recurse -Force
           Copy-Item "assets\adb\*" -Destination "$outDir\assets\adb" -Force
           Copy-Item "assets\scrcpy\*" -Destination "$outDir\assets\scrcpy" -Force
