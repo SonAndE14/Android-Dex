@@ -154,7 +154,7 @@ class AdbService {
 extension _ProcessExt on Process {
   Future<int> exitTimeOut(Duration timeout) async {
     try {
-      return await exitCode.timeout(timeout);
+      return await wait().timeout(timeout);
     } catch (_) {
       kill();
       return -1;

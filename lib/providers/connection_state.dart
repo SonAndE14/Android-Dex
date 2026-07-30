@@ -93,7 +93,7 @@ class ConnectionStateProvider extends ChangeNotifier {
     try {
       _jarServer = await ServerSocket.bind('127.0.0.1', AppConstants.jarServerPort);
       _jarServer!.listen((socket) {
-        socket.transform(utf8.decoder).listen((data) {
+        socket.cast<List<int>>().transform(utf8.decoder).listen((data) {
           try {
             final msg = jsonDecode(data);
             if (msg is Map && msg['type'] == 'jar.hello') {

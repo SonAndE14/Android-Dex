@@ -28,11 +28,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     if (result.success && result.ipAddress != null && result.port != null) {
       setState(() { _statusText = 'Pairing with ${result.ipAddress}:${result.port}...'; });
 
-      String? code = result.errorMessage;
-      if (code == null) {
-        final match = RegExp(r'(\d{6})').firstMatch(code);
-        code = match?.group(1);
-      }
+      final code = result.code;
 
       if (code != null) {
         final pairResult = await _adb.pair(result.ipAddress!, result.port!, code);

@@ -7,12 +7,14 @@ class QrPairingResult {
   final bool success;
   final String? ipAddress;
   final int? port;
+  final String? code;
   final String? errorMessage;
 
   QrPairingResult({
     required this.success,
     this.ipAddress,
     this.port,
+    this.code,
     this.errorMessage,
   });
 }
@@ -91,6 +93,7 @@ class QrPairingService {
             success: true,
             ipAddress: ip,
             port: port,
+            code: code,
           );
         }
       }
@@ -122,7 +125,7 @@ class QrPairingService {
             success: true,
             ipAddress: ip,
             port: port,
-            errorMessage: code,
+            code: code,
           );
         }
       }

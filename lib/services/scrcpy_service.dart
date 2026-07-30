@@ -67,7 +67,7 @@ class ScrcpyService {
           '--push-target', '/data/local/tmp/scrcpy-server.jar',
         ],
         runInShell: true,
-        mode: ProcessStartMode.detachedWithStdout,
+        mode: ProcessStartMode.detached,
       );
 
       final instance = ScrcpyInstance(
