@@ -7,35 +7,67 @@ endif()
 string(REPLACE "\\" "/" FLUTTER_ROOT "${FLUTTER_ROOT}")
 
 set(BINARY_NAME "android_dex_win")
-set(APPLICATION_ID "com.androiddex.app")
 
-cmake_policy(SET CMP0063 NEW)
+cmake_policy(VERSION 3.14...3.25)
 
-set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
+get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(IS_MULTICONFIG)
+  set(CMAKE_CONFIGURATION_TYPES "Debug;Profile;Release"
+    CACHE STRING "" FORCE)
+else()
+  if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE
+      STRING "Flutter build mode" FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+      "Debug" "Profile" "Release")
+  endif()
+endif()
+set(CMAKE_EXE_LINKER_FLAGS_PROFILE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
+set(CMAKE_SHARED_LINKER_FLAGS_PROFILE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
+set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE}")
+set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 
-configure_file(
-  "${CMAKE_SOURCE_DIR}/flutter/CMakeLists.txt"
-  "${CMAKE_BINARY_DIR}/flutter/CMakeLists.txt"
-  COPYONLY
-)
+add_definitions(-DUNICODE -D_UNICODE)
 
-configure_file(
-  "${CMAKE_SOURCE_DIR}/runner/CMakeLists.txt"
-  "${CMAKE_BINARY_DIR}/runner/CMakeLists.txt"
-  COPYONLY
-)
+function(APPLY_STANDARD_SETTINGS TARGET)
+  target_compile_features(${TARGET} PUBLIC cxx_std_17)
+  target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100")
+  target_compile_options(${TARGET} PRIVATE /EHsc)
+  target_compile_definitions(${TARGET} PRIVATE "_HAS_EXCEPTIONS=0")
+  target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
+endfunction()
 
-add_subdirectory("${CMAKE_BINARY_DIR}/flutter" flutter)
-add_subdirectory("${CMAKE_BINARY_DIR}/runner" runner)
+set(FLUTTER_MANAGED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter")
+add_subdirectory(${FLUTTER_MANAGED_DIR})
+add_subdirectory("runner")
 
-if(PLATFORM_NAME)
-  target_compile_definitions(runner PRIVATE PLATFORM_NAME="${PLATFORM_NAME}")
+include(flutter/generated_plugins.cmake OPTIONAL)
+
+set(BUILD_BUNDLE_DIR "$<TARGET_FILE_DIR:${BINARY_NAME}>")
+set(CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD 1)
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
 endif()
 
-install(TARGETS runner RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")
-install(DIRECTORY "${FLUTTER_ROOT}/bin/cache/artifacts/engine/windows-x64"
-  DESTINATION "${CMAKE_INSTALL_PREFIX}"
-  FILES_MATCHING PATTERN "*.dll"
-)
-install(FILES "${CMAKE_SOURCE_DIR}/assets/adb/adb.exe" DESTINATION "${CMAKE_INSTALL_PREFIX}")
-install(FILES "${CMAKE_SOURCE_DIR}/assets/scrcpy/scrcpy.exe" DESTINATION "${CMAKE_INSTALL_PREFIX}")
+set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
+set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}")
+
+install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+  COMPONENT Runtime)
+
+install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
+  COMPONENT Runtime)
+install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_SOURCE_DIR}/../assets/adb/adb.exe" DESTINATION "${CMAKE_INSTALL_PREFIX}")
+install(FILES "${CMAKE_SOURCE_DIR}/../assets/scrcpy/scrcpy.exe" DESTINATION "${CMAKE_INSTALL_PREFIX}")
+
+install(CODE "
+  file(REMOVE_RECURSE \"${INSTALL_BUNDLE_DATA_DIR}/flutter_assets\")
+  " COMPONENT Runtime)
+install(DIRECTORY "${PROJECT_BUILD_DIR}/flutter_assets"
+  DESTINATION "${INSTALL_BUNDLE_DATA_DIR}" COMPONENT Runtime)
+install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
+  CONFIGURATIONS Profile;Release
+  COMPONENT Runtime)
