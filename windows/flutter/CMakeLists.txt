@@ -78,14 +78,6 @@ target_include_directories(flutter_wrapper_app PUBLIC
 )
 add_dependencies(flutter_wrapper_app flutter_assemble)
 
-file(GLOB PLUGIN_DIRS "${EPHEMERAL_DIR}/.plugin_symlinks/*")
-foreach(plugin_dir IN LISTS PLUGIN_DIRS)
-  if(IS_DIRECTORY ${plugin_dir})
-    get_filename_component(plugin_name ${plugin_dir} NAME)
-    add_subdirectory(${plugin_dir} ${CMAKE_CURRENT_BINARY_DIR}/plugins/${plugin_name})
-  endif()
-endforeach()
-
 set(PHONY_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/_phony_")
 set_source_files_properties("${PHONY_OUTPUT}" PROPERTIES SYMBOLIC TRUE)
 add_custom_command(
