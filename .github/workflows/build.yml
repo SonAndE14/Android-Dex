@@ -42,8 +42,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path "assets\scrcpy" -Force | Out-Null
-          $loc = (Invoke-WebRequest -Uri "https://github.com/Genymobile/scrcpy/releases/latest" -MaximumRedirection 0 -SkipHttpErrorCheck -UseBasicParsing).Headers.Location
-          $tag = $loc -replace ".*/tag/", ""
+          $tag = ((curl.exe -sL -o nul -w "%{url_effective}" "https://github.com/Genymobile/scrcpy/releases/latest") -replace ".*/tag/", "")
           $zipName = "scrcpy-win64-$tag.zip"
           $zipUrl = "https://github.com/Genymobile/scrcpy/releases/download/$tag/$zipName"
           $zip = "$env:TEMP\scrcpy.zip"
