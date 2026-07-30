@@ -53,6 +53,9 @@ jobs:
           Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy.exe" -Destination "assets\scrcpy\scrcpy.exe"
           Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy-server" -Destination "assets\scrcpy\scrcpy-server"
 
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Build Windows
         run: flutter build windows --release
 
