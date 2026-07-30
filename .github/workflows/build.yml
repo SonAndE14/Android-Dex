@@ -29,6 +29,7 @@ jobs:
       - name: Download ADB platform-tools
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Path "assets\adb" -Force | Out-Null
           $url = "https://dl.google.com/android/repository/platform-tools-latest-windows.zip"
           $zip = "$env:TEMP\platform-tools.zip"
           Invoke-WebRequest -Uri $url -OutFile $zip
@@ -40,6 +41,7 @@ jobs:
       - name: Download scrcpy
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Path "assets\scrcpy" -Force | Out-Null
           $url = "https://github.com/Genymobile/scrcpy/releases/latest/download/scrcpy-win64-v2.7.zip"
           $zip = "$env:TEMP\scrcpy.zip"
           Invoke-WebRequest -Uri $url -OutFile $zip
