@@ -4,10 +4,7 @@
 #include <string>
 #include <vector>
 
-class Utils {
- public:
-  static void InitializeCOM();
-  static std::vector<std::string> ConvertFlutterArgsToCommandLineArguments();
-};
+void CreateAndAttachConsole();
+std::vector<std::string> GetCommandLineArguments();
 
 #endif

@@ -11,10 +11,14 @@
 class Win32Window {
  public:
   struct Point {
+    Point() : x(0), y(0) {}
+    Point(long x, long y) : x(x), y(y) {}
     long x;
     long y;
   };
   struct Size {
+    Size() : width(0), height(0) {}
+    Size(long width, long height) : width(width), height(height) {}
     long width;
     long height;
   };
@@ -25,6 +29,7 @@ class Win32Window {
   bool Create(const std::wstring& title, Point origin, Size size);
   void Destroy();
 
+  void Show();
   HWND GetHandle() const { return window_handle_; }
   RECT GetClientArea();
 

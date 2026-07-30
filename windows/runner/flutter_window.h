@@ -4,6 +4,8 @@
 #include <flutter/dart_project.h>
 #include <flutter/flutter_view_controller.h>
 
+#include <memory>
+
 #include "win32_window.h"
 
 class FlutterWindow : public Win32Window {
@@ -19,7 +21,8 @@ class FlutterWindow : public Win32Window {
                          LPARAM const lparam) noexcept override;
 
  private:
-  std::unique_ptr<flutter::FlutterViewController> flutter_view_controller_;
+  std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
+  flutter::DartProject project_;
 };
 
 #endif

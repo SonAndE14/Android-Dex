@@ -1,14 +1,16 @@
 #include "utils.h"
+
 #include <flutter_windows.h>
+
 #include <Shlwapi.h>
 #include <shellapi.h>
 #include <algorithm>
 
-void Utils::InitializeCOM() {
-  CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+void CreateAndAttachConsole() {
+  ::AllocConsole();
 }
 
-std::vector<std::string> Utils::ConvertFlutterArgsToCommandLineArguments() {
+std::vector<std::string> GetCommandLineArguments() {
   int argc;
   LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
   std::vector<std::string> args;

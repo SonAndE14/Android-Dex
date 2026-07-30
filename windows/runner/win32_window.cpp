@@ -56,6 +56,10 @@ bool Win32Window::Create(const std::wstring& title, Point origin, Size size) {
   return true;
 }
 
+void Win32Window::Show() {
+  ShowWindow(window_handle_, SW_SHOW);
+}
+
 void Win32Window::Destroy() {
   OnDestroy();
   if (window_handle_) {
