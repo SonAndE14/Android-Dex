@@ -48,7 +48,7 @@ class AdbService {
       final process = await Process.start(adbPath, args, runInShell: true);
       final stdout = await process.stdout.transform(utf8.decoder).join();
       final stderr = await process.stderr.transform(utf8.decoder).join();
-      final exitCode = await process.exitTimeOut(timeout ?? const Duration(seconds: 30));
+      final exitCode = process.exitTimeOut(timeout ?? const Duration(seconds: 30));
       return AdbResult(
         success: exitCode == 0,
         output: (stdout + stderr).trim(),
@@ -152,12 +152,7 @@ class AdbService {
 }
 
 extension _ProcessExt on Process {
-  Future<int> exitTimeOut(Duration timeout) async {
-    try {
-      return await wait().timeout(timeout);
-    } catch (_) {
-      kill();
-      return -1;
-    }
+  int exitTimeOut(Duration timeout) {
+    return exitCode;
   }
 }
