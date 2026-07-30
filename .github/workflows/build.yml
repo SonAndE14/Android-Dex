@@ -42,8 +42,9 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path "assets\scrcpy" -Force | Out-Null
+          $headers = @{ "Authorization" = "Bearer $env:GITHUB_TOKEN" }
           $api = "https://api.github.com/repos/Genymobile/scrcpy/releases/latest"
-          $tag = (Invoke-RestMethod -Uri $api).tag_name
+          $tag = (Invoke-RestMethod -Uri $api -Headers $headers).tag_name
           $zipName = "scrcpy-win64-$tag.zip"
           $zipUrl = "https://github.com/Genymobile/scrcpy/releases/download/$tag/$zipName"
           $zip = "$env:TEMP\scrcpy.zip"
