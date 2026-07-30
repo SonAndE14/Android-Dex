@@ -1,15 +1,22 @@
 #include "win32_window.h"
+
 #include <flutter_windows.h>
+
 #include <dwmapi.h>
 #include <stdexcept>
 
+#include "resource.h"
+
 std::wstring Win32Window::window_class_name_;
 
-Win32Window::Win32Window() : window_handle_(nullptr), child_content_(nullptr), quit_on_destroy_(false) {}
+Win32Window::Win32Window()
+    : window_handle_(nullptr),
+      child_content_(nullptr),
+      quit_on_close_(false) {}
 
 Win32Window::~Win32Window() { Destroy(); }
 
-bool Win32Window::Create(const std::wstring& title, int width, int height) {
+bool Win32Window::Create(const std::wstring& title, Point origin, Size size) {
   if (!window_class_name_.empty()) {
     window_class_name_ = L"FLUTTER_RUNNER_WIN32_WINDOW";
   }
@@ -32,12 +39,13 @@ bool Win32Window::Create(const std::wstring& title, int width, int height) {
   DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
   DWORD exStyle = WS_EX_APPWINDOW;
 
-  RECT rect = {0, 0, width, height};
+  RECT rect = {origin.x, origin.y,
+               origin.x + size.width, origin.y + size.height};
   AdjustWindowRectEx(&rect, style, FALSE, exStyle);
 
   window_handle_ = CreateWindowEx(
       exStyle, window_class_name_.c_str(), title.c_str(),
-      style, CW_USEDEFAULT, CW_USEDEFAULT,
+      style, rect.left, rect.top,
       rect.right - rect.left, rect.bottom - rect.top,
       nullptr, nullptr, hInstance, this);
 
@@ -63,6 +71,14 @@ RECT Win32Window::GetClientArea() {
   return frame;
 }
 
+void Win32Window::SetQuitOnClose(bool quit_on_close) {
+  quit_on_close_ = quit_on_close;
+}
+
+bool Win32Window::GetQuitOnClose() const {
+  return quit_on_close_;
+}
+
 void Win32Window::SetChildContent(HWND content) {
   child_content_ = content;
   SetParent(content, window_handle_);
@@ -70,11 +86,16 @@ void Win32Window::SetChildContent(HWND content) {
 
 bool Win32Window::OnCreate() { return true; }
 void Win32Window::OnDestroy() {}
-LRESULT Win32Window::MessageHandler(HWND window, UINT const message, WPARAM const wparam, LPARAM const lparam) noexcept {
+
+LRESULT Win32Window::MessageHandler(HWND window, UINT const message,
+                                     WPARAM const wparam,
+                                     LPARAM const lparam) noexcept {
   return DefWindowProc(window, message, wparam, lparam);
 }
 
-LRESULT CALLBACK Win32Window::WndProc(HWND const window, UINT const message, WPARAM const wparam, LPARAM const lparam) noexcept {
+LRESULT CALLBACK Win32Window::WndProc(HWND const window, UINT const message,
+                                       WPARAM const wparam,
+                                       LPARAM const lparam) noexcept {
   if (message == WM_NCCREATE) {
     auto cs = reinterpret_cast<CREATESTRUCT*>(lparam);
     SetWindowLongPtr(window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(cs->lpCreateParams));

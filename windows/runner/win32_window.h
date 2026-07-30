@@ -10,14 +10,26 @@
 
 class Win32Window {
  public:
+  struct Point {
+    long x;
+    long y;
+  };
+  struct Size {
+    long width;
+    long height;
+  };
+
   Win32Window();
   virtual ~Win32Window();
 
-  bool Create(const std::wstring& title, int width, int height);
+  bool Create(const std::wstring& title, Point origin, Size size);
   void Destroy();
 
   HWND GetHandle() const { return window_handle_; }
   RECT GetClientArea();
+
+  void SetQuitOnClose(bool quit_on_close);
+  bool GetQuitOnClose() const;
 
   virtual LRESULT MessageHandler(HWND window, UINT const message,
                                  WPARAM const wparam,
@@ -32,7 +44,7 @@ class Win32Window {
  private:
   HWND window_handle_;
   HWND child_content_;
-  bool quit_on_destroy_;
+  bool quit_on_close_;
 
   static LRESULT CALLBACK WndProc(HWND const window, UINT const message,
                                   WPARAM const wparam,

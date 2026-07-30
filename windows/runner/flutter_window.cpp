@@ -1,15 +1,9 @@
 #include "flutter_window.h"
-#include <flutter/event_channel.h>
-#include <flutter/method_channel.h>
-#include <flutter/standard_method_codec.h>
-#include <windows.h>
+
 #include <optional>
 
 FlutterWindow::FlutterWindow(const flutter::DartProject& project)
-    : flutter_view_controller_(std::make_unique<flutter::FlutterViewController>(
-          FlutterDesktopEngineCreate(
-              const_cast<FlutterDesktopEngineProperties*>(
-                  project.GetEngineProperties())))) {}
+    : flutter_view_controller_(std::make_unique<flutter::FlutterViewController>(project)) {}
 
 FlutterWindow::~FlutterWindow() {}
 
@@ -20,9 +14,11 @@ bool FlutterWindow::OnCreate() {
 
   RECT frame = GetClientArea();
 
-  flutter_view_controller_->CreateNativeWindow(
-      "Android DEX", frame.right - frame.left, frame.bottom - frame.top);
-
+  if (!flutter_view_controller_->CreateNativeWindow("Android DEX",
+                                                     frame.right - frame.left,
+                                                     frame.bottom - frame.top)) {
+    return false;
+  }
   SetChildContent(flutter_view_controller_->GetNativeWindow());
 
   flutter_view_controller_->SendInitialChannelData();

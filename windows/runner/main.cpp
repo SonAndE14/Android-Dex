@@ -1,40 +1,38 @@
 #include <flutter/dart_project.h>
 #include <flutter/flutter_view_controller.h>
 #include <windows.h>
+
 #include "flutter_window.h"
 #include "utils.h"
 
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command) {
   if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
-    ::AllocConsole();
+    CreateAndAttachConsole();
   }
 
-  Utils::InitializeCOM();
+  ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
-  FlutterDesktopEngineProperties engine_properties;
-  engine_properties.assets_path = L"data\\flutter_assets";
-  engine_properties.icu_data_path = L"icudtl.dat";
-  engine_properties.command_line = command_line;
-  engine_properties.aot_library_path = nullptr;
+  flutter::DartProject project(L"data");
 
   std::vector<std::string> command_line_arguments =
       Utils::ConvertFlutterArgsToCommandLineArguments();
 
-  FlutterDesktopEngineState *state =
-      FlutterDesktopEngineCreate(&engine_properties);
-  if (!state) {
+  project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
+
+  FlutterWindow window(project);
+  Win32Window::Point origin(10, 10);
+  Win32Window::Size size(1280, 720);
+  if (!window.Create(L"Android DEX", origin, size)) {
     return EXIT_FAILURE;
   }
+  window.SetQuitOnClose(true);
 
-  FlutterViewController view_controller(state);
-  auto result = view_controller.RunWindow();
-  if (result != EXIT_SUCCESS) {
-    return result;
+  ::MSG msg;
+  while (::GetMessage(&msg, nullptr, 0, 0)) {
+    ::TranslateMessage(&msg);
+    ::DispatchMessage(&msg);
   }
-
-  FlutterDesktopEngineRun(state, nullptr);
-  FlutterDesktopEngineShutDown(state);
 
   ::CoUninitialize();
   return EXIT_SUCCESS;
