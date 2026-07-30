@@ -4,6 +4,7 @@ project(android_dex LANGUAGES CXX)
 if(NOT DEFINED FLUTTER_ROOT)
   set(FLUTTER_ROOT $ENV{FLUTTER_ROOT})
 endif()
+string(REPLACE "\\" "/" FLUTTER_ROOT "${FLUTTER_ROOT}")
 
 set(BINARY_NAME "android_dex_win")
 set(APPLICATION_ID "com.androiddex.app")

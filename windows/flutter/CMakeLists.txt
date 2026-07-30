@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 if(NOT DEFINED FLUTTER_ROOT)
   set(FLUTTER_ROOT $ENV{FLUTTER_ROOT})
 endif()
+string(REPLACE "\\" "/" FLUTTER_ROOT "${FLUTTER_ROOT}")
 
 set(EPHEMERAL_DIR "${CMAKE_SOURCE_DIR}/ephemeral")
 
