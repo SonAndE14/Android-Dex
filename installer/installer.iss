@@ -2,7 +2,7 @@
 #define MyAppExeName "android_dex_win.exe"
 
 #ifndef MyAppVersion
-  #define MyAppVersion "0.9.0"
+  #define MyAppVersion "0.9.2"
 #endif
 
 #ifndef StageDir

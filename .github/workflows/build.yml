@@ -65,9 +65,9 @@ jobs:
           $outDir = "build\android_dex_portable"
           New-Item -ItemType Directory -Path "$outDir\assets\adb" -Force | Out-Null
           New-Item -ItemType Directory -Path "$outDir\assets\scrcpy" -Force | Out-Null
-          robocopy "$buildDir" "$outDir" /E /NJH /NJS /NDL /NP /R:2 /W:2
-          robocopy "assets\adb" "$outDir\assets\adb" /E /NJH /NJS /NDL /NP /R:2 /W:2
-          robocopy "assets\scrcpy" "$outDir\assets\scrcpy" /E /NJH /NJS /NDL /NP /R:2 /W:2
+          $rb1 = robocopy "$buildDir" "$outDir" /E /NJH /NJS /NDL /NP /R:2 /W:2; if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
+          $rb2 = robocopy "assets\adb" "$outDir\assets\adb" /E /NJH /NJS /NDL /NP /R:2 /W:2; if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
+          $rb3 = robocopy "assets\scrcpy" "$outDir\assets\scrcpy" /E /NJH /NJS /NDL /NP /R:2 /W:2; if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
           Compress-Archive -Path "$outDir\*" -DestinationPath "build\android_dex_win.zip" -Force
 
       - name: Install Inno Setup
@@ -78,7 +78,7 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ github.event.release.tag_name }}".TrimStart("v")
-          if (-not $version) { $version = "0.9.0" }
+          if (-not $version) { $version = "0.9.2" }
           $stageDir = (Resolve-Path "build\android_dex_portable").Path
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "installer\installer.iss" /DMyAppVersion="$version" /DStageDir="$stageDir"
 
