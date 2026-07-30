@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +19,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.x'
+          flutter-version: '3.22.x'
           channel: 'stable'
           cache: true
 
@@ -51,13 +51,6 @@ jobs:
           $folder = "scrcpy-win64-$tag"
           Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy.exe" -Destination "assets\scrcpy\scrcpy.exe"
           Copy-Item "$env:TEMP\scrcpy\$folder\scrcpy-server" -Destination "assets\scrcpy\scrcpy-server"
-
-      - name: Setup VS 2022
-        shell: pwsh
-        run: |
-          # Check available VS and CMake generators
-          cmake --help | Select-String "Visual Studio" -Context 0,0
-          vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64
 
       - name: Build Windows
         run: flutter build windows --release
