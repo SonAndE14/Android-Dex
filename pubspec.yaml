@@ -12,13 +12,12 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   provider: ^6.1.1
-  window_manager: ^0.3.8
+  window_manager: ^0.5.2
   wakelock_plus: ^1.2.1
   path_provider: ^2.1.2
   shared_preferences: ^2.2.2
   web_socket_channel: ^2.4.4
   local_notifier: ^0.1.6
-  screen_retriever: ^0.2.0
   system_tray: ^2.0.3
   url_launcher: ^6.2.4
   http: ^1.2.1
