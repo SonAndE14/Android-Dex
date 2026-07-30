@@ -1,0 +1,4 @@
+#define IDI_APP_ICON 101
+#define IDR_MAINFRAME 128
+#define IDM_EXIT 105
+#define IDC_STATIC -1

@@ -1,0 +1,79 @@
+name: Build Android DEX for Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Download ADB platform-tools
+        shell: pwsh
+        run: |
+          $url = "https://dl.google.com/android/repository/platform-tools-latest-windows.zip"
+          $zip = "$env:TEMP\platform-tools.zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:TEMP\platform-tools" -Force
+          Copy-Item "$env:TEMP\platform-tools\platform-tools\adb.exe" -Destination "assets\adb\adb.exe"
+          Copy-Item "$env:TEMP\platform-tools\platform-tools\AdbWinApi.dll" -Destination "assets\adb\AdbWinApi.dll"
+          Copy-Item "$env:TEMP\platform-tools\platform-tools\AdbWinUsbApi.dll" -Destination "assets\adb\AdbWinUsbApi.dll"
+
+      - name: Download scrcpy
+        shell: pwsh
+        run: |
+          $url = "https://github.com/Genymobile/scrcpy/releases/latest/download/scrcpy-win64-v2.7.zip"
+          $zip = "$env:TEMP\scrcpy.zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:TEMP\scrcpy" -Force
+          Copy-Item "$env:TEMP\scrcpy\scrcpy-win64-v2.7\scrcpy.exe" -Destination "assets\scrcpy\scrcpy.exe"
+          Copy-Item "$env:TEMP\scrcpy\scrcpy-win64-v2.7\scrcpy-server" -Destination "assets\scrcpy\scrcpy-server"
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Prepare artifacts
+        shell: pwsh
+        run: |
+          $buildDir = "build\windows\x64\runner\Release"
+          $outDir = "build\android_dex_portable"
+          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+          Copy-Item "$buildDir\*" -Destination $outDir -Recurse -Force
+          Copy-Item "assets\adb\*" -Destination $outDir -Force
+          Copy-Item "assets\scrcpy\*" -Destination $outDir -Force
+          Compress-Archive -Path "$outDir\*" -DestinationPath "build\android_dex_win.zip" -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-dex-windows
+          path: build\android_dex_win.zip
+
+      - name: Upload to Release
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: build\android_dex_win.zip
+          asset_name: android_dex_win.zip
+          asset_content_type: application/zip

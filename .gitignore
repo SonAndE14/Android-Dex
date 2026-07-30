@@ -1,0 +1,31 @@
+# Flutter
+.dart_tool/
+.packages
+build/
+*.iml
+.idea/libraries/
+.idea/workspace.xml
+.idea/runConfigurations/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
+*.swo
+
+# Assets downloaded at build time
+assets/adb/adb.exe
+assets/adb/AdbWinApi.dll
+assets/adb/AdbWinUsbApi.dll
+assets/scrcpy/scrcpy.exe
+assets/scrcpy/scrcpy-server
+
+# Installer
+setup/*.exe
+setup/*.dll
+
+# Logs
+*.log
